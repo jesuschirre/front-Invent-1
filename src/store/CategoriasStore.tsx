@@ -9,9 +9,9 @@ interface CategoriaStore {
   parametros: number | null;
   // ===== ACCIONES =====
   mostrarcategorias: (IdEmpresa: number) => Promise<InterfaceCatego[]>;
-  insertarcategorias: (p: any) => Promise<void>;
+  insertarcategorias: (p: any) => Promise<boolean>;
   deletecategoria: (id:number) => Promise<void>
-  editarcategoria: (p:InterfaceCatego ) => Promise<void>;
+  editarcategoria: (p:InterfaceCatego ) => Promise<boolean>;
 }
 
 export const useCategoriasStore = create<CategoriaStore>((set, get) => ({
@@ -30,12 +30,13 @@ export const useCategoriasStore = create<CategoriaStore>((set, get) => ({
   },
 
   insertarcategorias: async (p) => {
-    await InsertarCategorias(p);
+    const res = await InsertarCategorias(p);
+    if (!res) {return false}
     const { parametros, mostrarcategorias } = get();
-
     if (parametros) {
       await mostrarcategorias(parametros); 
     }
+    return true;
   },
 
   deletecategoria: async (id:number) => {
@@ -48,12 +49,13 @@ export const useCategoriasStore = create<CategoriaStore>((set, get) => ({
   },
 
   editarcategoria: async (p: InterfaceCatego) => {
-    await EditarCategorias(p);
-        const { parametros, mostrarcategorias } = get();
-
+    const res = await EditarCategorias(p);
+    if (!res) { return false; }
+    const { parametros, mostrarcategorias } = get();
     if (parametros) {
       await mostrarcategorias(parametros);
     }
+    return true;
   },
 
 

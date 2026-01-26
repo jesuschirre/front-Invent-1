@@ -1,11 +1,10 @@
 import { v } from "../../../styles/variables";
-import { RiCloseLine } from "react-icons/ri";
 import { Cardlinks, ConfigLink } from "./Cardlinks";
 import { UseAuthStore } from "../../../store/authStore";
 import { FaRegMoon } from "react-icons/fa";
 import { CiBrightnessUp } from "react-icons/ci";
-import { useState } from "react";
 import { useTheme } from "../../../context/ThemeContext";
+import { ChevronLast, ChevronFirst, LogOut, Menu, X } from "lucide-react";
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -13,71 +12,89 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
-  const {signOut} = UseAuthStore();
+  const { signOut } = UseAuthStore();
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <aside
-      className={`
-        fixed z-50 inset-y-0 left-0 w-64 bg-amber-800 text-white
-        transform transition-transform duration-300 ease-in-out
-        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        md:translate-x-0 md:static md:flex
-        flex flex-col
-      `}
-    >
-      {/* Header mobile */}
-      <div className="flex items-center justify-between mb-8 md:hidden">
-        <div className="flex items-center gap-3">
-          <img src={v.logo} alt="Logo" className="w-8 h-8" />
-        </div>
-
+    <>
+      {/* BOTÓN FLOTANTE MÓVIL (Solo visible cuando el sidebar está cerrado en pantallas pequeñas) */}
+      {!sidebarOpen && (
         <button
-          onClick={() => setSidebarOpen(false)}
-          className="p-2 rounded hover:bg-gray-800"
+          onClick={() => setSidebarOpen(true)}
+          className="md:hidden fixed top-4 left-4 z-[60] p-2 bg-[#fdc700] border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1"
         >
-          <RiCloseLine size={22} />
+          <Menu size={24} />
         </button>
-      </div>
+      )}
 
-      {/* Header desktop */}
-      <div className="hidden md:flex gap-3 items-center justify-center min-h-[120px] mb-20">
-        <img src={v.logo} alt="Logo" className="w-10 h-10" />
-        <span className="text-2xl font-bold">InvenT</span>
-      </div>
+      {/* OVERLAY PARA MÓVIL (Oscurece el fondo al abrir el menú) */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[50] md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
-      {/* Navegación */}
-      <nav className="flex flex-col gap-5">
-        <Cardlinks />
-          <div className=" h-px bg-gray-700 my-2"></div>
-        <ConfigLink/>
+      {/* SIDEBAR ASIDE */}
+      <aside 
+        className={`
+          fixed md:relative z-[100] md:z-auto h-screen transition-all duration-300 ease-in-out border-r-4 border-black
+          ${sidebarOpen ? "translate-x-0 w-64" : "-translate-x-full md:translate-x-0 md:w-20"}
+        `}
+      >
+        <nav className="h-full flex flex-col bg-[#fdc700] dark:bg-zinc-900 overflow-hidden">
+          
+          {/* LOGO Y TOGGLE */}
+          <div className="p-4 mb-8 flex justify-between items-center border-b-4 border-black bg-white dark:bg-zinc-800"> 
+              <div className="flex items-center gap-2">
+                  
+                  {(sidebarOpen) && 
+                   <div className="flex gap-2">
+                    <span className="text-xl font-black italic tracking-tighter dark:text-white">INVENTARIO</span>
+                  </div>}
+              </div>
+              
+              {/* Toggle: En móvil es una X para cerrar, en desktop es el chevron */}
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="p-1 border-2 border-black bg-[#fee685] hover:bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all"
+              >
+                <span className="md:hidden"><X size={20} /></span>
+                <span className="hidden md:block">
+                  {sidebarOpen ? <ChevronFirst size={20} /> : <ChevronLast size={20} />}
+                </span>
+              </button>
+          </div>
 
-        <div className="flex justify-center items-center">
-          <div className="flex justify-center items-center">
-          <button
+          {/* ENLACES PRINCIPALES */}
+          <div className="flex-1 px-3 space-y-2 overflow-y-auto custom-scrollbar">
+              <Cardlinks sidebarOpen={sidebarOpen} />
+              <div className="h-1 bg-black my-4 mx-2"></div>
+              <ConfigLink sidebarOpen={sidebarOpen} />
+          </div>
+            
+          {/* FOOTER */}
+          <div className="p-4 border-t-4 border-black bg-white dark:bg-zinc-800 space-y-3">
+            <button
               onClick={toggleTheme}
-              className="
-                w-11 h-11
-                rounded-full
-                flex items-center justify-center
-                bg-white dark:bg-gray-800
-                text-gray-600 dark:text-yellow-400
-                shadow-md
-                hover:scale-105
-                transition-all
-              "
+              className="w-full h-12 border-4 border-black flex items-center justify-center bg-[#fee685] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
             >
-              {theme === "light" ? <FaRegMoon /> : <CiBrightnessUp />}
+              {theme === "light" ? <FaRegMoon size={20} /> : <CiBrightnessUp size={24} className="text-orange-600" />}
+              {sidebarOpen && <span className="ml-2 font-black uppercase text-[10px] text-black">Modo {theme === "light" ? "Noche" : "Día"}</span>}
+            </button>
+
+            <button
+              onClick={signOut}
+              className="w-full flex items-center justify-center gap-2 p-3 border-4 border-black bg-red-400 text-black font-black uppercase text-[10px] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-red-500 hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+            >
+              <LogOut size={18} />
+              {sidebarOpen && <span>Cerrar sesión</span>}
             </button>
           </div>
-        </div>
-        <button onClick={signOut} className="bg-black text-white">
-          cerrar sesion
-        </button>
-      </nav>
-      
-        
-    </aside>
+          
+        </nav>    
+      </aside>
+    </>
   );
 };
 

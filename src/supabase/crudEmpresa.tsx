@@ -7,6 +7,13 @@ export interface EmpresaAsignada {
     simbolomone: string;
   };
 }
+export interface Empresa {
+  id: number;
+  nombre: string;
+  simbolomone: string;
+  estado?: string;
+}
+
 
 export const MostrarEmpresa = async (
   idUsu: number
@@ -17,7 +24,6 @@ export const MostrarEmpresa = async (
     .select("empresa(id,nombre,simbolomone)")
     .eq("id_usuario", idUsu)
     .returns<EmpresaAsignada[]>(); // CLAVE
-
   if (error) {
     console.error("Error al obtener empresa:", error.message);
     return null;
@@ -28,6 +34,23 @@ export const MostrarEmpresa = async (
   }
 
   return data[0];
+};
+
+export const EditarEmpresa = async (
+  empresa: Empresa
+): Promise<boolean> => {
+  const { id, ...data } = empresa;
+  const { error } = await supabase
+    .from("empresa")
+    .update(data)
+    .eq("id", id);
+
+  if (error) {
+    console.error("Error al editar empresa:", error.message);
+    return false;
+  }
+
+  return true;
 };
 
 export const ContarUsuariosXempresa = async (

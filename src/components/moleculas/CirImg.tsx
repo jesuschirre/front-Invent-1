@@ -1,15 +1,10 @@
-import img from "../../assets/inventarioslogo.png"
+import { UserAuth } from "../../context/AuthContext";
 export default function CirImg() {
+  const {user} = UserAuth();
   return (
     <div className="flex justify-center items-center">
-      <div className="w-10 h-10 rounded-full overflow-hidden">
-        <img
-          src={img}
-          alt="Avatar"
-          className="w-full h-full object-cover"
-        />
-      </div>
-      <h1 className="dark:text-white">correo@corre.com</h1>
+      <h1 className="font-black text-xl mr-2 dark:text-white">Bienvenido </h1>
+      <h1 className="dark:text-white">{user?.email}</h1>
     </div>
   );
 }

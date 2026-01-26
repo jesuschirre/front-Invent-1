@@ -18,7 +18,9 @@ export async function InsertarCategorias(p: InterfaceCatego) {
             text: error.message,
             footer: '<a href="">Agregue una nueva descripcion</a>',
           });
+      return false;
     }
+    return true;
 }
 
 export async function MostrarCategorias(IdEmpresa : number ) {
@@ -83,4 +85,5 @@ export async function EditarCategorias(p: InterfaceCatego) {
         });
         return false;
     }
+    return true;
 }

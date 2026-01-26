@@ -10,9 +10,9 @@ export interface MarcaStore {
 
   // ===== ACCIONES =====
   mostrarMarca: (id_empresa: number) => Promise<Marca[]>;
-  insertarMarca: (p: any) => Promise<void>;
+  insertarMarca: (p: any) => Promise<boolean>;
   eliminarproductos: (Id: number) => Promise<void>;
-  editarMarca: (p: Marca) => Promise<void>;
+  editarMarca: (p: Marca) => Promise<boolean>;
 }
 
 export const useMarcaStore = create<MarcaStore>((set, get) => ({
@@ -33,13 +33,13 @@ export const useMarcaStore = create<MarcaStore>((set, get) => ({
     return response ?? [];
   },
   insertarMarca: async (p) => {
-    await InsertarMarca(p);
-
+    const res = await InsertarMarca(p);
+    if (!res) {return false}
     const { parametros, mostrarMarca } = get();
-
     if (parametros) {
       await mostrarMarca(parametros); 
     }
+    return true;
   },
   eliminarproductos: async (Id: number) => {
     await EliminarMarca(Id)
@@ -50,12 +50,14 @@ export const useMarcaStore = create<MarcaStore>((set, get) => ({
     }
   },
   editarMarca: async ( p : Marca ) => {
-    await EditarMarca (p)
+    const res = await EditarMarca (p)
+    if (!res) {return false}
     const { parametros, mostrarMarca } = get();
 
     if (parametros) {
       await mostrarMarca(parametros); 
     }
+    return true;
   }
 
 }));

@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
 interface CartConfigProps {
   title: string;
   subtitle: string;
-  icono: string; // Puede ser una URL o un componente de Lucide
+  icono: string; 
   link: string;
 }
 
@@ -16,33 +17,39 @@ export default function CartConfig({
   return (
     <Link 
       to={link} 
-      className="group relative flex flex-col items-center justify-center p-6 bg-white rounded-2xl border border-gray-100 dark:border-gray-700
-                shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-in-out overflow-hidden w-full dark:bg-black"
+      className="group relative flex flex-col items-center justify-center p-8 
+                 bg-white dark:bg-zinc-900 
+                 border-4 border-black 
+                 rounded-none 
+                 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] 
+                 hover:shadow-none 
+                 transition-all duration-200 
+                 overflow-hidden w-full"
     >
-      {/* Decoración de fondo al hacer hover */}
-      <div className="absolute top-0 right-0 -mr-16 -mt-16 w-32 h-32 bg-amber-100 rounded-full transition-transform group-hover:scale-[2.5] duration-700 opacity-20" />
-
-      {/* Contenedor del Icono */}
-      <div className="relative mb-4 p-4 bg-amber-50 rounded-xl group-hover:bg-amber-400 transition-colors duration-300">
+      {/* Contenedor del Icono con borde rígido */}
+      <div className="relative mb-6 p-4 bg-[#fee685] border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:bg-yellow-400 transition-colors duration-300">
         <img 
           src={icono} 
           alt={title} 
-          className="h-25 w-25 object-contain filter group-hover:brightness-110 transition-all" 
+          className="h-16 w-16 object-contain transition-transform group-hover:scale-110" 
         />
       </div>
 
-      {/* Textos */}
+      {/* Textos con jerarquía fuerte */}
       <div className="relative text-center">
-        <h3 className="text-lg font-bold text-gray-800 mb-1 group-hover:text-amber-600 transition-colors dark:text-white">
+        <h3 className="text-xl font-black text-black dark:text-white uppercase tracking-tighter mb-2 group-hover:text-yellow-600 transition-colors">
           {title}
         </h3>
-        <p className="text-sm text-gray-400 leading-relaxed">
+        <div className="h-1 w-12 bg-black dark:bg-white mx-auto mb-3 group-hover:w-full transition-all duration-300" />
+        <p className="text-xs font-bold text-gray-500 dark:text-zinc-400 leading-relaxed uppercase tracking-tight">
           {subtitle}
         </p>
       </div>
 
-      {/* Indicador visual inferior */}
-      <div className="absolute bottom-0 left-0 w-0 h-1 bg-amber-400 group-hover:w-full transition-all duration-500" />
+      {/* Flecha indicadora estética en la esquina inferior */}
+      <div className="absolute bottom-2 right-2 opacity-20 group-hover:opacity-100 transition-opacity">
+        <ArrowRight className="w-5 h-5 text-black dark:text-white" />
+      </div>
     </Link>
   );
 }

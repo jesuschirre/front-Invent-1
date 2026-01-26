@@ -37,7 +37,9 @@ export async function InsertarProductos( p : InsertarProducto ) {
             text: error.message,
             footer: '<a href="">Agregue una nueva descripcion</a>',
           });
+      return false;
     }
+    return true;
 }
 
 export async function MostrarProductos( IdEmpresa : number ) { 
@@ -49,35 +51,38 @@ export async function MostrarProductos( IdEmpresa : number ) {
     return data;
 }
 
-export async function EliminarProductos( Id : number ) {
-    const result = await Swal.fire({
-      title: "¿Estás seguro?",
-      text: "Esta acción eliminará el Producto permanentemente",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar",
+export async function EliminarProductos(id: number) {
+  const result = await Swal.fire({
+    title: "¿Estás seguro?",
+    text: "Esta acción eliminará el producto permanentemente",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Sí, eliminar",
+    cancelButtonText: "Cancelar",
+  });
+
+  // Si cancela
+  if (!result.isConfirmed) {
+    return false;
+  }
+
+  const { error } = await supabase
+    .from("productos")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    await Swal.fire({
+      icon: "error",
+      title: "Error al eliminar el producto",
+      text: error.message,
     });
+    return false;
+  }
 
-    // Si cancela, no pasa nada
-    if (!result.isConfirmed) {
-      return false;
-    }
-
-    const { error } = await supabase
-      .from("productos")
-      .delete()
-      .eq("id", Id);
-    if (error) {
-      await Swal.fire({
-            icon: "error",
-            title: "Error al eliminar el producto",
-            text: error.message,
-          });
-          return false;
-    }
+  return true;
 }
 
 export async function EditarProductos( p: InsertarProductoDTO) {

@@ -1,20 +1,36 @@
-import { Navigate, Outlet } from "react-router-dom";
-import { type ReactNode } from "react";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { UserAuth } from "../context/AuthContext";
+import PaginaRecarga from "../pages/paginaRecarga";
 
-interface ProtectRouteProps {
-  user: unknown | null;     // puedes cambiar el tipo luego
+interface Props {
   redirectTo: string;
-  children?: ReactNode;
+  moduloRequerido?: string; // Nuevo: Nombre del módulo necesario
 }
 
-export default function ProtectRoute({
-  user,
-  redirectTo,
-  children,
-}: ProtectRouteProps) {
-  if (user === null) {
-    return <Navigate replace to={redirectTo} />;
+export default function ProtectRoute({ redirectTo, moduloRequerido }: Props) {
+  const { user, loading, modulos } = UserAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return <PaginaRecarga/>;
   }
 
-  return children ? children : <Outlet />;
+  // 1. Verificar Autenticación
+  if (!user) {
+    return <Navigate to={redirectTo} state={{ from: location }} replace />;
+  }
+
+  // 2. Verificar Autorización (si se pide un módulo específico)
+  if (moduloRequerido) {
+    const tienePermiso = modulos.some(
+      (m) => m.nombre.toLowerCase() === moduloRequerido.toLowerCase()
+    );
+
+    if (!tienePermiso) {
+      // Si no tiene permiso, lo mandamos al Home o una página 403
+      return <Navigate to="/" replace />;
+    }
+  }
+
+  return <Outlet />;
 }

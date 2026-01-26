@@ -1,252 +1,208 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import CirImg from "../moleculas/CirImg";
-import { useEmpresaStore } from "../../store/EmpresaStore";
-import DataTable, { type TableColumn } from "react-data-table-component";
-import { GrAdd, GrSearch } from "react-icons/gr";
+import { UserAuth } from "../../context/AuthContext";
+import { GrAdd, GrSearch, GrFormPrevious, GrFormNext } from "react-icons/gr";
 import { GoPencil } from "react-icons/go";
 import { FaRegTrashAlt } from "react-icons/fa";
-import { useTheme } from "../../context/ThemeContext";
 import { useProductosStore } from "../../store/ProductosStore";
 import { type InsertarProductoDTO } from "../../supabase/crudProductos";
 import ModalInsertProducto from "../organismos/form/ModalInsertProducto";
 import EditarProductModal from "../organismos/form/EditarProductModal";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
 export default function ProductosTemplate() {
   const { eliminarproductos, mostrarproductos, dataproductos } = useProductosStore();
-  const { dataempresa } = useEmpresaStore();
+  const { empresa } = UserAuth();
   const [openModalProduct, setOpenModalProduct] = useState(false);
   const [openModalEditProduct, setOpenModalEditProduct] = useState(false);
-  const [filtro, setFiltro] = useState("");
-  const [productSeleccionada, setProductSeleccionada] = useState<InsertarProductoDTO | null>(null);
-  const { theme } = useTheme();
+  const [productSeleccionado, setProductSeleccionado] = useState<InsertarProductoDTO | null>(null);
 
-  const dark = theme === "dark";
+  // Estados para Buscador y Paginación
+  const [filtro, setFiltro] = useState("");
+  const [paginaActual, setPaginaActual] = useState(1);
+  const itemsPorPagina = 10;
 
   useEffect(() => {
-    if (!dataempresa?.empresa?.id) return;
-    mostrarproductos(dataempresa.empresa.id);
-  }, [mostrarproductos, dataempresa]);
+    if (!empresa?.empresa?.id) return;
+    mostrarproductos(empresa.empresa.id);
+  }, [mostrarproductos, empresa]);
 
-  // Columnas con mejor diseño y botones de acción
-const columns: TableColumn<InsertarProductoDTO>[] = [
-  {
-    name: "PRODUCTO",
-    selector: row => row.descripcion,
-    sortable: true,
-    cell: row => (
-      <div className="font-bold text-slate-700 dark:text-white">
-        {row.descripcion}
-      </div>
-    ),
-  },
-  {
-    name: "CÓD. BARRAS",
-    selector: row => row.codigobarras,
-    sortable: true,
-  },
-  {
-    name: "CÓD. INTERNO",
-    selector: row => row.codigointerno,
-    sortable: true,
-  },
-  {
-    name: "MARCA",
-    selector: row => row.idmarca,
-    sortable: true,
-    width: "90px",
-  },
-  {
-    name: "CATEGORÍA",
-    selector: row => row.id_categoria,
-    sortable: true,
-    width: "110px",
-  },
-  {
-    name: "STOCK",
-    selector: row => row.stock,
-    sortable: true,
-    width: "90px",
-  },
-  {
-    name: "STOCK MÍN.",
-    selector: row => row.stock_minimo,
-    sortable: true,
-    width: "110px",
-  },
-  {
-    name: "P. COMPRA",
-    selector: row => row.preciocompra,
-    sortable: true,
-    cell: row => (
-      <span className="text-green-600 font-semibold">
-        S/ {row.preciocompra}
-      </span>
-    ),
-  },
-  {
-    name: "P. VENTA",
-    selector: row => row.precioventa,
-    sortable: true,
-    cell: row => (
-      <span className="text-blue-600 font-semibold">
-        S/ {row.precioventa}
-      </span>
-    ),
-  },
-  {
-    name: "EMPRESA",
-    selector: row => row.id_empresa,
-    sortable: true,
-    width: "100px",
-  },
-  {
-    name: "ACCIONES",
-    cell: row => (
-      <div className="flex gap-2">
-        <button
-          onClick={() => {
-            setProductSeleccionada(row);
-            setOpenModalEditProduct(true);
-          }}
-          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-        >
-          <GoPencil size={18} />
-        </button>
+  // Lógica de Filtrado (Busca por descripción o código)
+  const productosFiltrados = dataproductos.filter((p) =>
+    p.descripcion.toLowerCase().includes(filtro.toLowerCase()) ||
+    p.codigobarras?.toLowerCase().includes(filtro.toLowerCase())
+  );
 
-        <button
-          onClick={() => eliminarproductos(row.id)}
-          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-        >
-          <FaRegTrashAlt size={18} />
-        </button>
-      </div>
-    ),
-    ignoreRowClick: true,
-    button: true,
-    width: "130px",
-  },
-];
+  // Lógica de Paginación
+  const totalPaginas = Math.ceil(productosFiltrados.length / itemsPorPagina);
+  const startIndex = (paginaActual - 1) * itemsPorPagina;
+  const currentTableData = productosFiltrados.slice(startIndex, startIndex + itemsPorPagina);
 
-  // Estilos personalizados para DataTable
-  const customStyles = {
-    table: {
-      style: {
-        backgroundColor: dark ? "#1f2937" : "#ffffff",
-        color: dark ? "#e5e7eb" : "#1f2937",
-      },
-    },
 
-    header: {
-      style: {
-        display: "none",
-      },
-    },
-
-    headRow: {
-      style: {
-        backgroundColor: dark ? "#111827" : "#f8fafc",
-        borderBottomColor: dark ? "#374151" : "#e2e8f0",
-      },
-    },
-
-    headCells: {
-      style: {
-        color: dark ? "#d1d5db" : "#64748b",
-        fontWeight: "700",
-        fontSize: "12px",
-      },
-    },
-
-    rows: {
-      style: {
-        backgroundColor: dark ? "#1f2937" : "#ffffff",
-        color: dark ? "#e5e7eb" : "#1f2937",
-        fontSize: "14px",
-
-        "&:not(:last-child)": {
-          borderBottomColor: dark ? "#374151" : "#f1f5f9",
-        },
-
-        "&:hover": {
-          backgroundColor: dark ? "#374151" : "#f1f5f9",
-          transition: "0.2s",
-        },
-      },
-    },
-    pagination: {
-      style: {
-        backgroundColor: dark ? "#111827" : "#ffffff",
-        color: dark ? "#e5e7eb" : "#1f2937",
-      },
-    },
-  };
-  
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-7xl mx-auto flex flex-col h-full gap-6">
+    <div className="min-h-screen p-4 md:p-8 transition-colors">
+      <div className="max-w-7xl mx-auto flex flex-col gap-8">
         
-        {/* TOP BAR / LOGO */}
-        <header className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-100 dark:bg-slate-600 dark:border-0">
+        {/* TOP BAR */}
+        <header className="flex justify-between items-center bg-white dark:bg-zinc-900 p-4 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
           <CirImg />
+          <div className="px-4 py-1 bg-black text-white font-black text-xs uppercase tracking-widest">
+            Inventario
+          </div>
         </header>
 
-        {/* HEADER DE PÁGINA: Título + Botón */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-black text-slate-800 tracking-tight dark:text-white">Productos</h1>
-            <p className="text-slate-500 dark:text-slate-300">Gestiona el catálogo de productos para tu empresa</p>
+        {/* HEADER DE PÁGINA */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-1">
+            <h1 className="text-5xl font-black text-black dark:text-white tracking-tighter uppercase italic">
+              Productos
+            </h1>
+            <p className="font-bold text-gray-400 uppercase text-[10px] tracking-[0.2em]">
+              Gestión de Stock / {productosFiltrados.length} Items Encontrados
+            </p>
           </div>
           
           <button
             onClick={() => setOpenModalProduct(true)}
-            className="flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg  transition-all active:scale-95 group"
+            className="flex items-center justify-center gap-2 bg-[#fee685] hover:bg-yellow-400 text-black px-8 py-4 border-4 border-black font-black uppercase shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all  active:shadow-none"
           >
-            <GrAdd className="group-hover:rotate-90 transition-transform" />
+            <GrAdd size={20} />
             <span>Nuevo Producto</span>
           </button>
         </div>
 
-        {/* BUSCADOR Y TABLA */}
-        <section className="bg-white dark:bg-black rounded-2xl shadow-sm border border-slate-200 overflow-hidden dark:rounded-xl dark:border-slate-500">
-          {/* Barra de búsqueda interna */}
-          <div className="p-4 border-b  bg-slate-50/50 flex items-center gap-3 dark:bg-slate-600 ">
+        {/* BUSCADOR NEO-BRUTALISTA */}
+        <div className="bg-white dark:bg-zinc-900 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center gap-4 p-2">
+           <div className="bg-black text-white p-3 border-2 border-black">
+              <GrSearch size={20} />
+           </div>
+           <input 
+              type="text"
+              placeholder="BUSCAR POR NOMBRE O CÓDIGO DE BARRAS..."
+              className="w-full bg-transparent outline-none font-black uppercase text-sm dark:text-white placeholder:text-gray-400"
+              value={filtro}
+              onChange={(e) => {
+                setFiltro(e.target.value);
+                setPaginaActual(1);
+              }}
+           />
+        </div>
 
-            <GrSearch className="text-slate-400" />
-            <input 
-              type="text" 
-              placeholder="Buscar marca..." 
-              className="bg-transparent outline-none text-sm w-full text-slate-600 dark:text-white"
-              onChange={(e) => setFiltro(e.target.value)}
-            />
+        {/* CONTENEDOR DE TABLA NATIVA */}
+        <section className="bg-white dark:bg-zinc-900 border-4 border-black shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-[#fee685] border-b-4 border-black text-black">
+                  <th className="p-4 font-black uppercase text-xs tracking-widest border-r-2 border-black">Producto</th>
+                  <th className="p-4 font-black uppercase text-xs tracking-widest border-r-2 border-black">Cód. INTERNO</th>
+                  <th className="p-4 font-black uppercase text-xs tracking-widest border-r-2 border-black text-center">Stock</th>
+                  <th className="p-4 font-black uppercase text-xs tracking-widest border-r-2 border-black text-center">P. Venta</th>
+                  <th className="p-4 font-black uppercase text-xs tracking-widest text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y-2 divide-black">
+                {currentTableData.length > 0 ? (
+                  currentTableData.map((item) => (
+                    <tr key={item.id} className="hover:bg-yellow-50 dark:hover:bg-zinc-800 transition-colors">
+                      <td className="p-4 border-r-2 border-black font-black uppercase dark:text-white">
+                        {item.descripcion}
+                      </td>
+                      <td className="p-4 border-r-2 border-black font-bold text-gray-500 dark:text-gray-400">
+                        {item.codigointerno || "---"}
+                      </td>
+                      <td className="p-4 border-r-2 border-black text-center">
+                        <span className={`px-3 py-1 border-2 border-black font-black ${Number(item.stock) <= Number(item.stock_minimo) ? 'bg-red-400' : 'bg-green-400 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'}`}>
+                          {item.stock}
+                        </span>
+                      </td>
+                      <td className="p-4 border-r-2 border-black text-center font-black dark:text-white">
+                        S/ {item.precioventa}
+                      </td>
+                      <td className="p-4">
+                        <div className="flex justify-center gap-3">
+                          <button
+                            onClick={() => {
+                              setProductSeleccionado(item);
+                              setOpenModalEditProduct(true);
+                            }}
+                            className="p-2 border-2 border-black bg-white hover:bg-blue-400 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none transition-all"
+                          >
+                            <GoPencil size={18} />
+                          </button>
+                          <button
+                            onClick={() => eliminarproductos(item.id)}
+                            className="p-2 border-2 border-black bg-white hover:bg-red-400 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none transition-all"
+                          >
+                            <FaRegTrashAlt size={18} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="p-10 text-center font-black uppercase text-gray-400 italic">
+                      No se encontraron productos registrados.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
-          
-          <DataTable 
-            columns={columns} 
-            data={dataproductos} 
-            customStyles={customStyles}
-            pagination
-            paginationComponentOptions={{
-                rowsPerPageText: 'Filas por página:',
-                rangeSeparatorText: 'de',
-                noRowsPerPage: false,
-                selectAllRowsItem: false
-            }}
-            noDataComponent={
-                <div className="p-10 text-slate-400">No se encontraron marcas registradas.</div>
-            }
-          />
+
+          {/* PAGINADOR NEO-BRUTALISTA */}
+          <div className="bg-[#fee685] dark:bg-zinc-800 px-6 py-4 border-t-4 border-black flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-xs font-black uppercase text-black dark:text-white">
+              Mostrando {productosFiltrados.length > 0 ? startIndex + 1 : 0} - {Math.min(startIndex + itemsPorPagina, productosFiltrados.length)} de {productosFiltrados.length} registros
+            </p>
+
+            <div className="flex items-center gap-2">
+              <button
+                  disabled={paginaActual === 1}
+                  onClick={() => setPaginaActual(prev => prev - 1)}
+                  className="p-2 border-2 border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+              </button>
+              <div className="flex gap-1">
+                  {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setPaginaActual(page)}
+                      className={`w-10 h-10 border-2 border-black font-black text-sm transition-all ${
+                        paginaActual === page 
+                        ? 'bg-black text-white' 
+                        : 'bg-white text-black hover:bg-yellow-200 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+              </div>
+              <button
+                  disabled={paginaActual === totalPaginas || totalPaginas === 0}
+                  onClick={() => setPaginaActual(prev => prev + 1)}
+                  className="p-2 border-2 border-black bg-white dark:bg-zinc-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronRight className="w-5 h-5 dark:text-white" />
+              </button>
+            </div>
+          </div>
         </section>
 
+        {/* MODALES */}
         {openModalProduct && <ModalInsertProducto onClose={() => setOpenModalProduct(false)} />}
-        {openModalEditProduct && productSeleccionada && (
+        {openModalEditProduct && productSeleccionado && (
           <EditarProductModal
-            producto={productSeleccionada}
+            producto={productSeleccionado}
             onClose={() => {
               setOpenModalEditProduct(false);
-              setProductSeleccionada(null);
+              setProductSeleccionado(null);
             }}
           />
         )}
       </div>
     </div>
-  )
+  );
 }

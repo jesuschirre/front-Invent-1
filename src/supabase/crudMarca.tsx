@@ -97,14 +97,5 @@ export async function EditarMarca( p: Marca) {
         });
         return false;
       }
-    
-}
-
-export async function BuscarMarca(p) {
-    const { data} = await supabase
-    .from("marca")
-    .select()
-    .eq("id_empresa", p.id_empresa)
-    .ilike("descripcion","%"+p.descripcion+"%")
-    return data;
+    return true;
 }
