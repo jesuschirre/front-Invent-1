@@ -1,4 +1,3 @@
-import { v } from "../../../styles/variables";
 import { Cardlinks, ConfigLink } from "./Cardlinks";
 import { UseAuthStore } from "../../../store/authStore";
 import { FaRegMoon } from "react-icons/fa";

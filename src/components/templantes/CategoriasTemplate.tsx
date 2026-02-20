@@ -4,7 +4,7 @@ import { UserAuth } from "../../context/AuthContext";
 import type { InterfaceCatego } from "../../supabase/crudCategorias";
 import { GoPencil } from "react-icons/go";
 import { FaRegTrashAlt } from "react-icons/fa";
-import { GrAdd, GrSearch, GrFormPrevious, GrFormNext } from "react-icons/gr";
+import { GrAdd, GrSearch } from "react-icons/gr";
 import CirImg from "../moleculas/CirImg";
 import ModalInsertCategoria from "../organismos/form/ModalInsertCategoria";
 import EditarCategoriaModal from "../organismos/form/EditarCategoriaModal";

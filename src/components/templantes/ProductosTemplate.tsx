@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import CirImg from "../moleculas/CirImg";
 import { UserAuth } from "../../context/AuthContext";
-import { GrAdd, GrSearch, GrFormPrevious, GrFormNext } from "react-icons/gr";
+import { GrAdd, GrSearch } from "react-icons/gr";
 import { GoPencil } from "react-icons/go";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { useProductosStore } from "../../store/ProductosStore";

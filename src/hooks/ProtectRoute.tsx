@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { UserAuth } from "../context/AuthContext";
-import PaginaRecarga from "../pages/paginaRecarga";
+import PaginaRecarga from "../pages/PaginaRecarga";
 
 interface Props {
   redirectTo: string;

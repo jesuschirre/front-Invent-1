@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
-import { Search, Filter, ArrowUpCircle, ArrowDownCircle, Plus, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Filter, ArrowUpCircle, ArrowDownCircle, Plus, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { MostrarKardex } from '../../supabase/crudKardex';
 import { UserAuth } from '../../context/AuthContext';
 import ModalInsertKardex from '../organismos/form/ModalInsertKardex';
+import ModalIA from '../organismos/form/ModalIA';
+import { GiFairyWand } from "react-icons/gi";
 
+// --- INTERFACES ---
 interface KardexProducto {
   descripcion: string;
 }
@@ -22,295 +25,201 @@ interface KardexItem {
   detalles: string;
 }
 
+interface Filters {
+  producto: string;
+  tipoMovimiento: string;
+  fechaInicio: string;
+  fechaFin: string;
+}
+
+interface Summary {
+  entradas: number;
+  salidas: number;
+  neto: number;
+}
+
 export default function KardexTemplate() {
   const { empresa } = UserAuth();
   const [kardexData, setKardexData] = useState<KardexItem[]>([]);
-  const [OpenInKardModal, setOpenInKardModal] = useState(false);
+  const [OpenInKardModal, setOpenInKardModal] = useState<boolean>(false);
+  const [OpenIAdModal, setOpenIAdModal] = useState<boolean>(false);
   
-  // ESTADOS PARA PAGINACIÓN
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const rowsPerPage = 10;
 
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<Filters>({
     producto: '',
     tipoMovimiento: '',
     fechaInicio: '',
-    fechaFin: '',
-    codigo: ''
+    fechaFin: ''
   });
-  const [filteredData, setFilteredData] = useState<KardexItem[]>([]);
 
-  useEffect(() => {
-    const cargarKardex = async () => {
-      if (!empresa?.empresa?.id) return;
-      const res = await MostrarKardex(empresa.empresa.id);
-      if (res) setKardexData(res);
-    };
-    cargarKardex();
+  const cargarKardex = useCallback(async () => {
+    if (!empresa?.empresa?.id) return;
+    const res = await MostrarKardex(empresa.empresa.id);
+    if (res) setKardexData(res as KardexItem[]);
   }, [empresa?.empresa?.id]);
 
   useEffect(() => {
-    applyFilters();
+    cargarKardex();
+  }, [cargarKardex]);
+
+  const filteredData = useMemo(() => {
+    return kardexData.filter(item => {
+      const matchProducto = item.id_producto?.descripcion?.toLowerCase().includes(filters.producto.toLowerCase());
+      const matchTipo = filters.tipoMovimiento ? item.tipo === filters.tipoMovimiento : true;
+      const fechaItem = new Date(item.fecha);
+      const matchInicio = filters.fechaInicio ? fechaItem >= new Date(filters.fechaInicio) : true;
+      const matchFin = filters.fechaFin ? fechaItem <= new Date(filters.fechaFin + "T23:59:59") : true;
+      return matchProducto && matchTipo && matchInicio && matchFin;
+    });
   }, [filters, kardexData]);
 
-  // Lógica de cálculo de paginación
+  const summary = useMemo<Summary>(() => {
+    const entradas = filteredData.filter(i => i.tipo === 'entrada').reduce((s, i) => s + (i.cantidad || 0), 0);
+    const salidas = filteredData.filter(i => i.tipo === 'salida').reduce((s, i) => s + (i.cantidad || 0), 0);
+    return { entradas, salidas, neto: entradas - salidas };
+  }, [filteredData]);
+
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const currentTableData = filteredData.slice(startIndex, startIndex + rowsPerPage);
+  const currentTableData = useMemo(() => {
+    const start = (currentPage - 1) * rowsPerPage;
+    return filteredData.slice(start, start + rowsPerPage);
+  }, [filteredData, currentPage]);
 
-  // Efecto para resetear página al filtrar
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filters]);
+  useEffect(() => setCurrentPage(1), [filters]);
 
-  const applyFilters = () => {
-    let filtered = [...kardexData];
-    if (filters.producto) {
-      filtered = filtered.filter(item =>
-        item.id_producto?.descripcion?.toLowerCase().includes(filters.producto.toLowerCase())
-      );
-    }
-    if (filters.tipoMovimiento) {
-      filtered = filtered.filter(item => item.tipo === filters.tipoMovimiento);
-    }
-    if (filters.fechaInicio) {
-      filtered = filtered.filter(item => new Date(item.fecha) >= new Date(filters.fechaInicio));
-    }
-    if (filters.fechaFin) {
-      const endDate = new Date(filters.fechaFin);
-      endDate.setHours(23, 59, 59);
-      filtered = filtered.filter(item => new Date(item.fecha) <= endDate);
-    }
-    setFilteredData(filtered);
-  };
-
-  const handleFilterChange = (key: keyof typeof filters, value: string) => {
+  const handleFilterChange = (key: keyof Filters, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
-  const summary = {
-    totalEntradas: filteredData.filter(item => item.tipo === 'entrada').reduce((sum, item) => sum + (item.cantidad || 0), 0),
-    totalSalidas: filteredData.filter(item => item.tipo === 'salida').reduce((sum, item) => sum + (item.cantidad || 0), 0),
-  };
-
-  const getMovimientoBadge = (tipo: string) => {
-    const styles = {
-      entrada: 'bg-green-100 text-green-800 border-green-600',
-      salida: 'bg-red-100 text-red-800 border-red-600',
-      ajuste: 'bg-yellow-100 text-yellow-800 border-yellow-600'
-    };
-    return styles[tipo as keyof typeof styles] || 'bg-gray-100 border-gray-600';
-  };
-
   return (
-    <div className="min-h-screen p-4 md:p-8 transition-colors duration-300">
+    <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        
-        {/* Header Section */}
         <header className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
-            <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">
-              KARDEX
-            </h1>
-            <p className="text-slate-500 dark:text-zinc-400 font-medium">Control de flujo de inventario</p>
+            <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight uppercase">Kardex</h1>
+            <p className="text-slate-500 dark:text-zinc-400 font-medium">Control de Inventario Atómico</p>
           </div>
-          <button 
-            onClick={() => setOpenInKardModal(true)}
-            className="flex items-center justify-center gap-2 bg-[#fee685] hover:bg-yellow-400 text-black border-4 border-black px-6 py-3 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
-          >
-            <Plus className="w-5 h-5" /> Nuevo Movimiento
-          </button>
-        </header>
-
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white dark:bg-zinc-900 border-4 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-4">
-            <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-xl border-2 border-green-600">
-              <ArrowUpCircle className="w-8 h-8 text-green-600" />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Entradas</p>
-              <p className="text-3xl font-black text-slate-900 dark:text-white">{summary.totalEntradas}</p>
-            </div>
-          </div>
-          <div className="bg-white dark:bg-zinc-900 border-4 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-4">
-            <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded-xl border-2 border-red-600">
-              <ArrowDownCircle className="w-8 h-8 text-red-600" />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Salidas</p>
-              <p className="text-3xl font-black text-slate-900 dark:text-white">{summary.totalSalidas}</p>
-            </div>
-          </div>
-          <div className="bg-white dark:bg-zinc-900 border-4 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-4">
-            <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-xl border-2 border-blue-600">
-              <RotateCcw className="w-8 h-8 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Neto</p>
-              <p className="text-3xl font-black text-slate-900 dark:text-white">{summary.totalEntradas - summary.totalSalidas}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Filters Section */}
-        <div className="bg-white dark:bg-zinc-900 border-4 border-black overflow-hidden mb-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-          <div className="bg-[#fee685] border-b-2 border-black px-6 py-3 flex items-center justify-between">
-            <span className="flex items-center gap-2 font-black uppercase text-sm">
-              <Filter className="w-4 h-4" /> Filtros de Búsqueda
-            </span>
-            <button 
-              onClick={() => setFilters({ producto: '', tipoMovimiento: '', fechaInicio: '', fechaFin: '', codigo: '' })}
-              className="text-xs font-bold underline hover:text-red-600"
-            >
-              Limpiar filtros
+          <div className='flex flex-col md:flex-row gap-4'>
+            <button onClick={() => setOpenIAdModal(true)} className="flex items-center justify-center gap-2 bg-[#fee685] hover:bg-yellow-400 text-black border-4 border-black px-6 py-3 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none transition-all">
+              <GiFairyWand className="w-5 h-5" /> Consultar IA
+            </button>
+            <button onClick={() => setOpenInKardModal(true)} className="flex items-center justify-center gap-2 bg-[#fee685] hover:bg-yellow-400 text-black border-4 border-black px-6 py-3 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none transition-all">
+              <Plus className="w-5 h-5" /> Nuevo Registro
             </button>
           </div>
-          <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs font-black uppercase dark:text-white">Producto</label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input 
-                  className="w-full pl-10 pr-4 py-2 border-2 border-black rounded-xl dark:bg-zinc-800 dark:text-white focus:ring-2 ring-yellow-400 outline-none transition-all"
-                  placeholder="Buscar..."
-                  value={filters.producto}
-                  onChange={(e) => handleFilterChange('producto', e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-black uppercase dark:text-white">Tipo</label>
-              <select 
-                className="w-full px-4 py-2 border-2 border-black rounded-xl dark:bg-zinc-800 dark:text-white outline-none"
-                value={filters.tipoMovimiento}
-                onChange={(e) => handleFilterChange('tipoMovimiento', e.target.value)}
-              >
-                <option value="">Todos</option>
-                <option value="entrada">Entradas</option>
-                <option value="salida">Salidas</option>
-                <option value="ajuste">Ajustes</option>
-              </select>
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-black uppercase dark:text-white">Desde</label>
-              <input 
-                type="date" 
-                className="w-full px-4 py-2 border-2 border-black rounded-xl dark:bg-zinc-800 dark:text-white outline-none"
-                value={filters.fechaInicio}
-                onChange={(e) => handleFilterChange('fechaInicio', e.target.value)}
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-black uppercase dark:text-white">Hasta</label>
-              <input 
-                type="date" 
-                className="w-full px-4 py-2 border-2 border-black rounded-xl dark:bg-zinc-800 dark:text-white outline-none"
-                value={filters.fechaFin}
-                onChange={(e) => handleFilterChange('fechaFin', e.target.value)}
-              />
-            </div>
+        </header>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <StatCard title="Entradas" value={summary.entradas} icon={<ArrowUpCircle className="text-green-600"/>} color="green" />
+          <StatCard title="Salidas" value={summary.salidas} icon={<ArrowDownCircle className="text-red-600"/>} color="red" />
+          <StatCard title="Balance Neto" value={summary.neto} icon={<RotateCcw className="text-blue-600"/>} color="blue" />
+        </div>
+
+        <div className="bg-white dark:bg-zinc-900 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-8">
+          <div className="bg-[#fee685] border-b-4 border-black px-6 py-2 flex justify-between items-center">
+            <span className="font-black text-sm uppercase flex items-center gap-2"><Filter size={16}/> Panel de Filtros</span>
+            <button onClick={() => setFilters({producto:'', tipoMovimiento:'', fechaInicio:'', fechaFin:''})} className="text-xs font-bold underline">Limpiar</button>
+          </div>
+          <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <FilterInput label="Producto" value={filters.producto} onChange={(v: string) => handleFilterChange('producto', v)} placeholder="Nombre..." />
+            <FilterSelect label="Tipo" value={filters.tipoMovimiento} onChange={(v: string) => handleFilterChange('tipoMovimiento', v)} />
+            <FilterDate label="Desde" value={filters.fechaInicio} onChange={(v: string) => handleFilterChange('fechaInicio', v)} />
+            <FilterDate label="Hasta" value={filters.fechaFin} onChange={(v: string) => handleFilterChange('fechaFin', v)} />
           </div>
         </div>
 
-        {/* Table Section */}
-        <div className="bg-white dark:bg-zinc-900 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+        <div className="bg-white dark:bg-zinc-900 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-slate-100 dark:bg-zinc-800 border-b-2 border-black">
-                  <th className="px-6 py-4 text-left text-xs font-black uppercase dark:text-white">Fecha</th>
-                  <th className="px-6 py-4 text-left text-xs font-black uppercase dark:text-white">Producto</th>
-                  <th className="px-6 py-4 text-left text-xs font-black uppercase dark:text-white">Movimiento</th>
-                  <th className="px-6 py-4 text-center text-xs font-black uppercase dark:text-white">Cant.</th>
-                  <th className="px-6 py-4 text-left text-xs font-black uppercase dark:text-white">Usuario</th>
-                  <th className="px-6 py-4 text-left text-xs font-black uppercase dark:text-white">Detalles</th>
+            <table className="w-full ">
+              <thead >
+                <tr className="bg-[#fee685] border-b-4 border-black font-black uppercase text-xs">
+                  <th className="px-6 py-4 text-left">Fecha</th>
+                  <th className="px-6 py-4 text-left">Producto</th>
+                  <th className="px-6 py-4 text-left">Tipo</th>
+                  <th className="px-6 py-4 text-center">Cant.</th>
+                  <th className="px-6 py-4 text-left">Usuario</th>
                 </tr>
               </thead>
-              <tbody className="divide-y-2 divide-slate-100 dark:divide-zinc-800">
+              <tbody className="divide-y-2 divide-black">
                 {currentTableData.map((item) => (
-                  <tr key={item.id} className="hover:bg-yellow-50 dark:hover:bg-yellow-900/10 transition-colors">
-                    <td className="px-6 py-4 text-sm font-medium dark:text-zinc-300">
-                      {new Date(item.fecha).toLocaleDateString('es-PE')}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-bold dark:text-white">
-                      {item.id_producto?.descripcion}
-                    </td>
+                  <tr key={item.id} className="hover:bg-yellow-50 dark:hover:bg-zinc-800 transition-colors">
+                    <td className="px-6 py-4 text-sm font-bold dark:text-white">{new Date(item.fecha).toLocaleDateString()}</td>
+                    <td className="px-6 py-4 font-black dark:text-white">{item.id_producto?.descripcion}</td>
                     <td className="px-6 py-4">
-                      <span className={`px-3 py-1 text-[10px] font-black uppercase rounded-full border-2 ${getMovimientoBadge(item.tipo)}`}>
-                        {item.tipo}
-                      </span>
+                       <span className={`px-3 py-1 text-[10px] font-black border-2 border-black rounded-full uppercase ${item.tipo === 'entrada' ? 'bg-green-400' : 'bg-red-400'}`}>
+                         {item.tipo}
+                       </span>
                     </td>
                     <td className={`px-6 py-4 text-center font-black ${item.tipo === 'entrada' ? 'text-green-600' : 'text-red-600'}`}>
                       {item.tipo === 'entrada' ? '+' : '-'}{item.cantidad}
                     </td>
-                    <td className="px-6 py-4 text-sm dark:text-zinc-400">
-                      {item.id_usuario?.nombres}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-500 italic truncate max-w-[200px]">
-                      {item.detalles || '---'}
-                    </td>
+                    <td className="px-6 py-4 text-sm font-medium dark:text-white">{item.id_usuario?.nombres}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          
-          {filteredData.length === 0 && (
-            <div className="py-20 text-center">
-              <div className="inline-block p-6 rounded-full bg-slate-100 dark:bg-zinc-800 mb-4 border-2 border-dashed border-black">
-                <Search className="w-12 h-12 text-slate-400" />
-              </div>
-              <p className="text-slate-500 font-bold">No se encontraron registros</p>
-            </div>
-          )}
-
-          {/* CONTROLES DE PAGINACIÓN */}
-          <div className="bg-[#fee685] dark:bg-zinc-800 px-6 py-4 border-t-4 border-black flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-xs font-black uppercase text-black dark:text-white">
-              Mostrando {filteredData.length > 0 ? startIndex + 1 : 0} - {Math.min(startIndex + rowsPerPage, filteredData.length)} de {filteredData.length} registros
-            </p>
-
-            <div className="flex items-center gap-2">
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(prev => prev - 1)}
-                className="p-2 border-2 border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-
-              <div className="flex gap-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`w-10 h-10 border-2 border-black font-black text-sm transition-all ${
-                      currentPage === page 
-                      ? 'bg-black text-white' 
-                      : 'bg-white text-black hover:bg-yellow-200 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                disabled={currentPage === totalPages || totalPages === 0}
-                onClick={() => setCurrentPage(prev => prev + 1)}
-                className="p-2 border-2 border-black bg-white dark:bg-zinc-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              >
-                <ChevronRight className="w-5 h-5 dark:text-white" />
-              </button>
-            </div>
-          </div>
+          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} totalResults={filteredData.length} rowsPerPage={rowsPerPage} />
         </div>
       </div>
-
-      {OpenInKardModal && (
-        <ModalInsertKardex onClose={() => setOpenInKardModal(false)} />
-      )}
+      {OpenInKardModal && <ModalInsertKardex onClose={() => setOpenInKardModal(false)} onSuccess={cargarKardex} />}
+      {OpenIAdModal && <ModalIA onClose={() => setOpenIAdModal(false)} />}
     </div>
   );
 }
+
+// --- SUB-COMPONENTES CON TIPADO ---
+interface StatCardProps { title: string; value: number; icon: React.ReactNode; color: string; }
+const StatCard = ({ title, value, icon, color }: StatCardProps) => (
+  <div className="bg-white dark:bg-zinc-900 border-4 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-4">
+    <div className={`p-3 rounded-xl border-2 border-black bg-${color}-100`}>{icon}</div>
+    <div>
+      <p className="text-xs font-black uppercase text-slate-500">{title}</p>
+      <p className="text-3xl font-black dark:text-white">{value}</p>
+    </div>
+  </div>
+);
+
+interface FilterInputProps { label: string; value: string; onChange: (v: string) => void; placeholder?: string; }
+const FilterInput = ({ label, value, onChange, placeholder }: FilterInputProps) => (
+  <div className="space-y-1">
+    <label className="text-[10px] font-black uppercase dark:text-white">{label}</label>
+    <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className="w-full px-4 py-2 border-2 border-black rounded-lg dark:bg-zinc-800 outline-none focus:bg-yellow-50 dark:text-white" />
+  </div>
+);
+
+interface FilterSelectProps { label: string; value: string; onChange: (v: string) => void; }
+const FilterSelect = ({ value, onChange }: FilterSelectProps) => (
+  <div className="space-y-1">
+    <label className="text-[10px] font-black uppercase dark:text-white">Tipo</label>
+    <select value={value} onChange={e => onChange(e.target.value)} className="w-full px-4 py-2 border-2 border-black rounded-lg dark:bg-zinc-800 outline-none dark:text-white">
+      <option value="">Todos</option>
+      <option value="entrada">Entradas</option>
+      <option value="salida">Salidas</option>
+    </select>
+  </div>
+);
+
+const FilterDate = ({ label, value, onChange }: FilterInputProps) => (
+  <div className="space-y-1">
+    <label className="text-[10px] font-black uppercase dark:text-white">{label}</label>
+    <input type="date" value={value} onChange={e => onChange(e.target.value)} className="w-full px-4 py-2 border-2 border-black rounded-lg dark:bg-zinc-800 outline-none dark:text-white" />
+  </div>
+);
+
+interface PaginationProps { currentPage: number; totalPages: number; onPageChange: (p: number) => void; totalResults: number; rowsPerPage: number; }
+const Pagination = ({ currentPage, totalPages, onPageChange, totalResults, rowsPerPage }: PaginationProps) => {
+  const startIdx = (currentPage - 1) * rowsPerPage + 1;
+  return (
+    <div className="bg-[#fee685] dark:bg-zinc-800 px-6 py-4 border-t-4 border-black flex flex-col md:flex-row justify-between items-center gap-4">
+      <p className="text-[10px] font-black uppercase text-black dark:text-white">Mostrando {totalResults > 0 ? startIdx : 0} - {Math.min(startIdx + rowsPerPage - 1, totalResults)} de {totalResults}</p>
+      <div className="flex gap-2">
+        <button disabled={currentPage === 1} onClick={() => onPageChange(currentPage - 1)} className="p-2 border-2 border-black bg-white disabled:opacity-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"><ChevronLeft size={16}/></button>
+        <span className="flex items-center px-4 font-black text-sm border-2 border-black bg-black text-white">{currentPage} / {totalPages || 1}</span>
+        <button disabled={currentPage === totalPages || totalPages === 0} onClick={() => onPageChange(currentPage + 1)} className="p-2 border-2 border-black bg-white disabled:opacity-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"><ChevronRight size={16}/></button>
+      </div>
+    </div>
+  );
+};

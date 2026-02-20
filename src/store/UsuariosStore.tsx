@@ -105,6 +105,7 @@ export const useUsuarioStore = create<UsuarioStore>((set, get) => ({
 
     return usuarioDB;
   },
+  
   // Estado
   idusuario: 0,
   // Acción

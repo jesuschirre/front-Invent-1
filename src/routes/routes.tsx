@@ -10,12 +10,13 @@ import Usuario from "../pages/Usuario"
 import Kardex from "../pages/kardex"
 import Reportes from "../pages/reportes"
 import Empresa from "../pages/Empresa"
+import Registro from "../pages/Registro"
 
 export default function Routers() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-
+      <Route path="/registro" element={<Registro />} />
       {/* RUTAS GENERALES (Cualquier usuario logueado) */}
       <Route element={<ProtectRoute redirectTo="/login" />}>
         <Route path="/" element={<Home />} />
@@ -39,7 +40,7 @@ export default function Routers() {
           <Route path="/configurar/categorias" element={<Categorias />} />
         </Route>
         
-        <Route element={<ProtectRoute redirectTo="/" moduloRequerido=" Productos" />}>
+        <Route element={<ProtectRoute redirectTo="/" moduloRequerido="Productos" />}>
           <Route path="/configurar/productos" element={<Productos />} />
         </Route>
 
@@ -50,6 +51,7 @@ export default function Routers() {
         <Route element={<ProtectRoute redirectTo="/" moduloRequerido="Tu empresa" />}>
             <Route path="/configurar/empresa" element={<Empresa />} />
         </Route>
+
       </Route>
     </Routes>
   );

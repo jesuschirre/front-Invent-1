@@ -3,8 +3,7 @@ import { FaRegBuilding } from "react-icons/fa";
 import { useUsuarioStore } from "../../store/UsuariosStore";
 import { useEmpresaStore } from "../../store/EmpresaStore";
 import { useEffect } from "react";
-import { Sparkles, Users, Coins } from "lucide-react"; // Iconos extra para estilo
-
+import { Sparkles, Users, Coins } from "lucide-react";
 export default function HomeTemplate() {
   const { mostrarUsuarios } = useUsuarioStore();
   const {

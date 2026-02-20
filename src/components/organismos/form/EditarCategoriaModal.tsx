@@ -1,7 +1,7 @@
 import type { InterfaceCatego } from "../../../supabase/crudCategorias";
 import { useCategoriasStore } from "../../../store/CategoriasStore";
 import { useState } from "react";
-import { GrClose, GrEdit, GrRotateLeft } from "react-icons/gr";
+import { GrClose, GrRotateLeft } from "react-icons/gr";
 import Swal from "sweetalert2";
 
 interface Props {
