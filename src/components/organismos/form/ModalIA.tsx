@@ -9,6 +9,13 @@ interface Props {
   onClose: () => void;
 }
 
+// Definimos la interfaz para capturar los campos que nos interesan
+interface AIResponse {
+  rotation_analysis?: string;
+  suggestions?: string;
+  analysis?: string; // Por si el endpoint de riesgo usa este nombre
+}
+
 export default function ModalIA({ onClose }: Props) {
   const { empresa } = UserAuth();
   const { mostrarproductos, dataproductos } = useProductosStore();
@@ -16,7 +23,9 @@ export default function ModalIA({ onClose }: Props) {
   const [search, setSearch] = useState("");
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
-  const [resultado, setResultado] = useState<string | null>(null);
+  
+  // Guardaremos un objeto con los textos finales
+  const [resultado, setResultado] = useState<AIResponse | null>(null);
 
   useEffect(() => {
     if (!empresa?.empresa?.id) return;
@@ -42,12 +51,19 @@ export default function ModalIA({ onClose }: Props) {
       setLoading(true);
       setResultado(null);
       const endpoint = tipo === 'rotation' ? 'rotation' : 'stock-risk';
-      const response = await axios.post(`http://localhost:8000/api/ai/kardex/product/${endpoint}`, {
+      const response = await axios.post(`http://207.180.243.191:8000/api/ai/kardex/product/${endpoint}`, {
         product_id: selectedProductId
       });
 
-      // Asumiendo que la respuesta viene en un campo 'analysis' o similar
-      setResultado(response.data.analysis || JSON.stringify(response.data, null, 2));
+      // Extraemos solo lo que queremos mostrar
+      const { rotation_analysis, suggestions, analysis } = response.data;
+      
+      setResultado({
+        rotation_analysis: rotation_analysis,
+        suggestions: suggestions,
+        analysis: analysis
+      });
+
     } catch (error) {
       console.error(error);
       Swal.fire({ icon: "error", title: "ERROR IA", text: "No se pudo procesar el análisis" });
@@ -95,7 +111,7 @@ export default function ModalIA({ onClose }: Props) {
           </div>
 
           {/* LISTA DE PRODUCTOS */}
-          <div className="border-4 border-black h-48 overflow-y-auto bg-gray-50 dark:bg-zinc-800 shadow-[inset_0_4px_10px_rgba(0,0,0,0.1)]">
+          <div className="border-4 border-black h-48 overflow-y-auto bg-gray-50 dark:bg-zinc-800">
             {filteredProducts.map((p) => (
               <div
                 key={p.id}
@@ -128,19 +144,39 @@ export default function ModalIA({ onClose }: Props) {
             </button>
           </div>
 
-          {/* ÁREA DE RESULTADOS */}
+          {/* ÁREA DE RESULTADOS FILTRADOS */}
           {(loading || resultado) && (
-            <div className="border-4 border-black p-4 bg-black text-cyan-400 font-mono text-sm relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-1 bg-cyan-400 text-black text-[8px] font-black">AI_OUTPUT</div>
+            <div className="border-4 border-black p-4 bg-black text-cyan-400 font-mono text-sm relative overflow-hidden min-h-[150px]">
+              <div className="absolute top-0 right-0 p-1 bg-cyan-400 text-black text-[8px] font-black">AI_CORE_READY</div>
+              
               {loading ? (
-                <div className="flex items-center gap-3 animate-pulse">
+                <div className="flex items-center gap-3 animate-pulse h-full justify-center">
                   <GrRotateLeft className="animate-spin" />
-                  <span>PROCESANDO DATOS EN RED NEURONAL...</span>
+                  <span>DECODIFICANDO PATRONES DE VENTA...</span>
                 </div>
               ) : (
-                <div className="whitespace-pre-wrap leading-relaxed">
-                  <span className="text-white inline-block mb-2 font-black uppercase tracking-widest">{">"} RESULTADO DEL ANÁLISIS:</span><br/>
-                  {resultado}
+                <div className="space-y-4">
+                  {/* Mostramos el análisis (ya sea de rotación o general) */}
+                  <section>
+                    <span className="text-white font-black uppercase tracking-widest border-b border-white/30 block mb-2">
+                      {">"} DIAGNÓSTICO:
+                    </span>
+                    <p className="leading-relaxed text-justify">
+                      {resultado?.rotation_analysis || resultado?.analysis}
+                    </p>
+                  </section>
+
+                  {/* Mostramos las sugerencias si existen */}
+                  {resultado?.suggestions && (
+                    <section className="bg-cyan-900/20 p-3 border-l-2 border-cyan-400">
+                      <span className="text-cyan-200 font-black uppercase tracking-widest block mb-2">
+                        {">"} ACCIONES RECOMENDADAS:
+                      </span>
+                      <div className="whitespace-pre-wrap leading-relaxed text-xs italic">
+                        {resultado.suggestions}
+                      </div>
+                    </section>
+                  )}
                 </div>
               )}
             </div>
@@ -151,7 +187,7 @@ export default function ModalIA({ onClose }: Props) {
         <div className="p-4 bg-gray-100 dark:bg-zinc-800 border-t-4 border-black flex justify-end">
           <button
             onClick={onClose}
-            className="px-6 py-2 border-4 border-black font-black uppercase text-xs bg-white hover:bg-gray-200 transition-all"
+            className="px-6 py-2 border-4 border-black font-black uppercase text-xs bg-white hover:bg-gray-200 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none"
           >
             Cerrar Terminal
           </button>
