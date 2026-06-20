@@ -4,7 +4,6 @@ import { MostrarKardex } from '../../supabase/crudKardex';
 import { UserAuth } from '../../context/AuthContext';
 import ModalInsertKardex from '../organismos/form/ModalInsertKardex';
 import ModalIA from '../organismos/form/ModalIA';
-import { GiFairyWand } from "react-icons/gi";
 
 // --- INTERFACES ---
 interface KardexProducto {
