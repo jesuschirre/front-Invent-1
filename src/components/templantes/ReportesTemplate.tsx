@@ -137,7 +137,7 @@ export default function ReportesTemplate() {
                     type="date"
                     value={fechaInicio}
                     onChange={(e) => setFechaInicio(e.target.value)}
-                    className="w-full border-2 border-black p-2 font-bold dark:bg-zinc-800 dark:text-white outline-none focus:bg-blue-50"
+                    className="w-full border-2 border-black p-2 font-bold dark:bg-zinc-800 dark:text-white outline-none"
                   />
                 </div>
                 <div className="flex-1 space-y-1">
@@ -146,7 +146,7 @@ export default function ReportesTemplate() {
                     type="date"
                     value={fechaFinal}
                     onChange={(e) => setFechaFinal(e.target.value)}
-                    className="w-full border-2 border-black p-2 font-bold dark:bg-zinc-800 dark:text-white outline-none focus:bg-blue-50"
+                    className="w-full border-2 border-black p-2 font-bold dark:bg-zinc-800 dark:text-white outline-none"
                   />
                 </div>
               </div>
@@ -177,7 +177,7 @@ export default function ReportesTemplate() {
                   <select
                     value={idProducto}
                     onChange={(e) => setIdProducto(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border-2 border-black font-black appearance-none dark:bg-zinc-800 dark:text-white outline-none cursor-pointer focus:bg-green-50"
+                    className="w-full pl-10 pr-4 py-3 border-2 border-black font-black appearance-none dark:bg-zinc-800 dark:text-white outline-none cursor-pointer"
                   >
                     <option value="">-- ELIGE UN PRODUCTO --</option>
                     {dataproductos.map((p: any) => (
@@ -241,7 +241,7 @@ export default function ReportesTemplate() {
                     <button
                       disabled={currentPage === 1}
                       onClick={() => setCurrentPage(prev => prev - 1)}
-                      className="p-2 border-2 border-black bg-white dark:bg-zinc-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      className="p-2 border-2 border-black bg-white dark:bg-zinc-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-0.5 active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
                       <ChevronLeft className="w-5 h-5 dark:text-white" />
                     </button>
@@ -254,7 +254,7 @@ export default function ReportesTemplate() {
                           className={`w-10 h-10 border-2 border-black font-black text-sm transition-all ${
                             currentPage === page 
                             ? 'bg-black text-white' 
-                            : 'bg-white dark:bg-zinc-700 dark:text-white hover:bg-yellow-200 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]'
+                            : 'bg-white dark:bg-zinc-700 dark:text-white hover:bg-yellow-200 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-0.5 active:translate-y-0.5'
                           }`}
                         >
                           {page}
@@ -265,7 +265,7 @@ export default function ReportesTemplate() {
                     <button
                       disabled={currentPage === totalPages || totalPages === 0}
                       onClick={() => setCurrentPage(prev => prev + 1)}
-                      className="p-2 border-2 border-black bg-white dark:bg-zinc-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      className="p-2 border-2 border-black bg-white dark:bg-zinc-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-0.5 active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
                       <ChevronRight className="w-5 h-5 dark:text-white" />
                     </button>

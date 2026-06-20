@@ -176,7 +176,7 @@ export default function ModalInsertUsuario({ onClose }: modalUsu) {
     }
   };
 
-  const inputStyles = "w-full border-4 border-black p-3 font-black uppercase text-sm focus:bg-[#fee685] outline-none transition-colors placeholder:text-gray-400 dark:bg-zinc-800 dark:text-white";
+  const inputStyles = "w-full border-4 border-black p-3 font-black text-sm outline-none transition-colors placeholder:text-gray-400 dark:bg-zinc-800 dark:text-white";
   const labelStyles = "text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1 block";
 
   return (

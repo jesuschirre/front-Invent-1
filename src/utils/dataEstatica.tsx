@@ -6,9 +6,9 @@ import {
 
 import Caja from "../assets/caja.png"
 import Categoria from "../assets/categoria.png"
-import Empresa from "../assets/empresa.avif"
-import Marca from "../assets/marcas.avif"
-import Personas from "../assets/personas.png"
+import Empresa from "../assets/Empresa.png"
+import Marca from "../assets/Marca.png"
+import Personas from "../assets/Personal.png"
 
 export const DesplegableUser = [
   {

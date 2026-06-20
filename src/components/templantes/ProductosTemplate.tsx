@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import CirImg from "../moleculas/CirImg";
+import { CirImgS } from "../moleculas/CirImg";
 import { UserAuth } from "../../context/AuthContext";
 import { GrAdd, GrSearch } from "react-icons/gr";
 import { GoPencil } from "react-icons/go";
@@ -45,7 +45,7 @@ export default function ProductosTemplate() {
         
         {/* TOP BAR */}
         <header className="flex justify-between items-center bg-white dark:bg-zinc-900 p-4 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-          <CirImg />
+          <CirImgS />
           <div className="px-4 py-1 bg-black text-white font-black text-xs uppercase tracking-widest">
             Inventario
           </div>
@@ -79,7 +79,7 @@ export default function ProductosTemplate() {
            <input 
               type="text"
               placeholder="BUSCAR POR NOMBRE O CÓDIGO DE BARRAS..."
-              className="w-full bg-transparent outline-none font-black uppercase text-sm dark:text-white placeholder:text-gray-400"
+              className="w-full bg-transparent outline-none font-black text-sm dark:text-white placeholder:text-gray-400"
               value={filtro}
               onChange={(e) => {
                 setFiltro(e.target.value);
@@ -105,7 +105,7 @@ export default function ProductosTemplate() {
                 {currentTableData.length > 0 ? (
                   currentTableData.map((item) => (
                     <tr key={item.id} className="hover:bg-yellow-50 dark:hover:bg-zinc-800 transition-colors">
-                      <td className="p-4 border-r-2 border-black font-black uppercase dark:text-white">
+                      <td className="p-4 border-r-2 border-black font-black dark:text-white">
                         {item.descripcion}
                       </td>
                       <td className="p-4 border-r-2 border-black font-bold text-gray-500 dark:text-gray-400">
@@ -161,7 +161,7 @@ export default function ProductosTemplate() {
               <button
                   disabled={paginaActual === 1}
                   onClick={() => setPaginaActual(prev => prev - 1)}
-                  className="p-2 border-2 border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="p-2 border-2 border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-0.5 active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   <ChevronLeft className="w-5 h-5" />
               </button>
@@ -173,7 +173,7 @@ export default function ProductosTemplate() {
                       className={`w-10 h-10 border-2 border-black font-black text-sm transition-all ${
                         paginaActual === page 
                         ? 'bg-black text-white' 
-                        : 'bg-white text-black hover:bg-yellow-200 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]'
+                        : 'bg-white text-black hover:bg-yellow-200 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-0.5 active:translate-y-0.5'
                       }`}
                     >
                       {page}
@@ -183,7 +183,7 @@ export default function ProductosTemplate() {
               <button
                   disabled={paginaActual === totalPaginas || totalPaginas === 0}
                   onClick={() => setPaginaActual(prev => prev + 1)}
-                  className="p-2 border-2 border-black bg-white dark:bg-zinc-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="p-2 border-2 border-black bg-white dark:bg-zinc-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-0.5 active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   <ChevronRight className="w-5 h-5 dark:text-white" />
               </button>

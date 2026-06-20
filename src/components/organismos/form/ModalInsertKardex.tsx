@@ -118,7 +118,7 @@ export default function ModalInsertKardex({ onClose, onSuccess }: Props) {
                 name="tipo"
                 value={form.tipo}
                 onChange={handleChange}
-                className="w-full border-4 border-black px-3 py-2 font-bold focus:bg-yellow-50 dark:bg-zinc-800 dark:text-white outline-none appearance-none cursor-pointer"
+                className="w-full border-4 border-black px-3 py-2 font-bold  dark:bg-zinc-800 dark:text-white outline-none appearance-none cursor-pointer"
               >
                 <option value="entrada">🟢 Entrada</option>
                 <option value="salida">🔴 Salida</option>
@@ -136,7 +136,7 @@ export default function ModalInsertKardex({ onClose, onSuccess }: Props) {
                 min="0.01"
                 step="any"
                 required
-                className="w-full border-4 border-black px-3 py-2 font-bold focus:bg-yellow-50 dark:bg-zinc-800 dark:text-white outline-none"
+                className="w-full border-4 border-black px-3 py-2 font-bold dark:bg-zinc-800 dark:text-white outline-none"
               />
             </div>
           </div>
@@ -175,7 +175,7 @@ export default function ModalInsertKardex({ onClose, onSuccess }: Props) {
                       <li
                         key={p.id}
                         onClick={() => selectProducto(p.id, p.descripcion)}
-                        className="px-4 py-3 hover:bg-[#fee685] hover:text-black cursor-pointer font-bold border-b border-gray-100 dark:border-zinc-700 flex justify-between items-center"
+                        className="px-4 py-3 hover:bg-[#fee685] hover:text-black dark:text-white cursor-pointer font-bold border-b border-gray-100 dark:border-zinc-700 flex justify-between items-center"
                       >
                         <span>{p.descripcion}</span>
                         <span className="text-[10px] bg-black text-white px-2 py-1">ID: {p.id}</span>
@@ -197,7 +197,7 @@ export default function ModalInsertKardex({ onClose, onSuccess }: Props) {
               value={form.detalles}
               onChange={handleChange}
               rows={3}
-              className="w-full border-4 border-black px-3 py-2 font-medium focus:bg-yellow-50 dark:bg-zinc-800 dark:text-white outline-none"
+              className="w-full border-4 border-black px-3 py-2 font-medium dark:bg-zinc-800 dark:text-white outline-none"
             />
           </div>
 

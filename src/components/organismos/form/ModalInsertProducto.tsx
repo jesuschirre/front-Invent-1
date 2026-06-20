@@ -116,18 +116,18 @@ export default function ModalInsertProducto({ onClose }: Props) {
     }
   };
 
-  const inputStyles = "w-full border-4 border-black p-3 font-black uppercase text-xs focus:bg-[#fee685]/20 outline-none transition-colors dark:bg-zinc-800 dark:text-white placeholder:text-gray-400";
+  const inputStyles = "w-full border-4 border-black p-3 font-black text-xs focus:bg-[#fee685]/20 outline-none transition-colors dark:bg-zinc-800 dark:text-white placeholder:text-gray-400";
   const labelStyles = "text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-1 flex items-center gap-1";
   const dropdownBoxStyles = "w-full border-4 border-black px-4 py-3 font-bold bg-white dark:bg-zinc-800 dark:text-white flex justify-between items-center cursor-pointer hover:bg-gray-50 transition-colors dark:hover:bg-zinc-700 uppercase text-xs";
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="bg-white dark:bg-zinc-900 border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
         
         {/* HEADER */}
         <div className="sticky top-0 z-50 bg-[#fee685] border-b-4 border-black p-4 flex justify-between items-center">
           <h2 className="text-xl font-black uppercase italic tracking-tighter text-black">Nuevo Producto</h2>
-          <button onClick={onClose} className="p-1 border-2 border-black bg-white hover:bg-red-400 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">
+          <button onClick={onClose} className="p-1 border-2 border-black bg-white hover:bg-red-400 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-px active:translate-y-px">
             <GrClose size={20} />
           </button>
         </div>

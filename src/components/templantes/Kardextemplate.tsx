@@ -102,9 +102,11 @@ export default function KardexTemplate() {
             <p className="text-slate-500 dark:text-zinc-400 font-medium">Control de Inventario Atómico</p>
           </div>
           <div className='flex flex-col md:flex-row gap-4'>
-            <button onClick={() => setOpenIAdModal(true)} className="flex items-center justify-center gap-2 bg-[#fee685] hover:bg-yellow-400 text-black border-4 border-black px-6 py-3 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none transition-all">
-              <GiFairyWand className="w-5 h-5" /> Consultar IA
-            </button>
+           {
+            //<button onClick={() => setOpenIAdModal(true)} className="flex items-center justify-center gap-2 bg-[#fee685] hover:bg-yellow-400 text-black border-4 border-black px-6 py-3 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none transition-all">
+            //<GiFairyWand className="w-5 h-5" /> Consultar IA
+            //</button>
+           } 
             <button onClick={() => setOpenInKardModal(true)} className="flex items-center justify-center gap-2 bg-[#fee685] hover:bg-yellow-400 text-black border-4 border-black px-6 py-3 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none transition-all">
               <Plus className="w-5 h-5" /> Nuevo Registro
             </button>
@@ -176,7 +178,7 @@ const StatCard = ({ title, value, icon, color }: StatCardProps) => (
   <div className="bg-white dark:bg-zinc-900 border-4 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-4">
     <div className={`p-3 rounded-xl border-2 border-black bg-${color}-100`}>{icon}</div>
     <div>
-      <p className="text-xs font-black uppercase text-slate-500">{title}</p>
+      <p className="text-xs font-black uppercase text-slate-500 dark:text-white">{title}</p>
       <p className="text-3xl font-black dark:text-white">{value}</p>
     </div>
   </div>
@@ -186,7 +188,7 @@ interface FilterInputProps { label: string; value: string; onChange: (v: string)
 const FilterInput = ({ label, value, onChange, placeholder }: FilterInputProps) => (
   <div className="space-y-1">
     <label className="text-[10px] font-black uppercase dark:text-white">{label}</label>
-    <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className="w-full px-4 py-2 border-2 border-black rounded-lg dark:bg-zinc-800 outline-none focus:bg-yellow-50 dark:text-white" />
+    <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className="w-full px-4 py-2 border-2 border-black rounded-lg dark:bg-zinc-800 outline-none  dark:text-white" />
   </div>
 );
 

@@ -70,9 +70,10 @@ export default function LoginTemplante() {
     //  if (data) navigate("/");
     //},
   //});
+
   const inputStyles = `
     w-full h-14 bg-white border-4 border-black px-11
-    font-black uppercase text-sm outline-none
+    font-black text-sm outline-none
     shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]
     focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px]
     transition-all placeholder:text-gray-400
@@ -161,7 +162,7 @@ export default function LoginTemplante() {
                 font-black uppercase text-lg tracking-widest
                 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]
                 hover:bg-yellow-400 active:shadow-none
-                active:translate-x-[4px] active:translate-y-[4px]
+                active:translate-x-1 active:translate-y-1
                 transition-all flex items-center justify-center gap-3
                 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none
               "

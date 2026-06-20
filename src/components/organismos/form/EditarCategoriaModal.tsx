@@ -53,7 +53,7 @@ export default function EditarCategoriaModal({ categoria, onClose }: Props) {
     }
   };
 
-  const inputStyles = "w-full border-4 border-black p-3 font-black uppercase text-sm focus:bg-[#fee685]/20 outline-none transition-colors dark:bg-zinc-800 dark:text-white placeholder:text-gray-400";
+  const inputStyles = "w-full border-4 border-black p-3 font-black text-sm focus:bg-[#fee685]/20 outline-none transition-colors dark:bg-zinc-800 dark:text-white placeholder:text-gray-400";
   const labelStyles = "text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-1 block";
 
   return (

@@ -150,7 +150,7 @@ export default function EditarUsuarioModal({ usuario, onClose }: Props) {
     }
   };
 
-  const inputStyles = "w-full border-4 border-black p-3 font-black uppercase text-sm focus:bg-[#fee685] outline-none transition-colors dark:bg-zinc-800 dark:text-white";
+  const inputStyles = "w-full border-4 border-black p-3 font-black text-sm outline-none transition-colors dark:bg-zinc-800 dark:text-white";
   const labelStyles = "text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1 block";
 
   return (
@@ -180,16 +180,6 @@ export default function EditarUsuarioModal({ usuario, onClose }: Props) {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="md:col-span-2">
-                <label className={labelStyles}>Correo Electrónico <span className="text-red-500">(*)</span></label>
-                <input
-                  type="email"
-                  value={editUsu.correo}
-                  onChange={(e) => setEditUsu({ ...editUsu, correo: e.target.value })}
-                  className={inputStyles}
-                  required
-                />
-              </div>
               <div className="md:col-span-2">
                 <label className={labelStyles}>Nombres Completos <span className="text-red-500">(*)</span></label>
                 <input

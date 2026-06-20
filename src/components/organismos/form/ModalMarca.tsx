@@ -88,7 +88,7 @@ export default function ModalMarca({ onClose }: Props) {
               placeholder="EJ: NIKE, SONY, APPLE..."
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
-              className="w-full border-4 border-black p-4 font-black uppercase text-sm focus:bg-[#fee685] outline-none transition-colors dark:bg-zinc-800 dark:text-black placeholder:text-gray-400"
+              className="w-full border-4 border-black p-4 font-black text-sm outline-none transition-colors dark:bg-zinc-800 dark:text-white placeholder:text-gray-400"
               required
             />
           </div>

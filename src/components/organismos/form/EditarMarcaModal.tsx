@@ -52,10 +52,10 @@ export default function EditarMarcaModal({ marca, onClose }: Props) {
     }
   };
 
-  const inputStyles = "w-full border-4 border-black p-4 font-black uppercase text-sm focus:bg-[#fee685]/20 outline-none transition-colors dark:bg-zinc-800 dark:text-white placeholder:text-gray-400";
+  const inputStyles = "w-full border-4 border-black p-4 font-black text-sm outline-none transition-colors dark:bg-zinc-800 dark:text-white placeholder:text-gray-400";
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="bg-white dark:bg-zinc-900 border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] w-full max-w-md relative overflow-hidden">
         
         {/* HEADER - AMARILLO NEO-BRUTALISTA */}
@@ -70,7 +70,7 @@ export default function EditarMarcaModal({ marca, onClose }: Props) {
           </div>
           <button 
             onClick={onClose} 
-            className="p-1 border-2 border-black bg-white hover:bg-red-400 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]"
+            className="p-1 border-2 border-black bg-white hover:bg-red-400 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-px active:translate-y-px"
           >
             <GrClose size={20} />
           </button>
